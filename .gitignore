@@ -1,0 +1,4 @@
+node_modules
+.env
+forbeats.json
+package-lock.json
