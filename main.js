@@ -6,12 +6,14 @@ const uuidv5 = require('uuid/v5');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const googleStorage = require('@google-cloud/storage');
-// const functions = require('firebase-functions');
+// const firebase = require('firebase-functions');
 
 const app = express();
 app.use(cors());
 app.use(bp.urlencoded({ extended: false }))
 app.use(bp.json({ limit: "50mb" }));
+
+//export GOOGLE_APPLICATION_CREDENTIALS=/Users/loreinesantiago/fsf/tubs-server/forbeats.json
 
 // const firestore = firebase.firestore();
 //   const settings = {/* your settings... */ timestampsInSnapshots: true};
@@ -64,17 +66,15 @@ const INVOICErouter = invoiceCRUD(dbInit);
 const PRODUCTSrouter = productsCRUD(dbInit);
 
 
-app.use(API_URI + '/v1/upload', FILEUPLOADrouter);
-app.use(API_URI + '/v1', CUSTOMERSrouter);
-app.use(API_URI + '/v1', INVOICErouter);
-app.use(API_URI + '/v1', PRODUCTSrouter);
+app.use(API_URI + '/file', FILEUPLOADrouter);
+app.use(API_URI + '', CUSTOMERSrouter);
+app.use(API_URI + '', INVOICErouter);
+app.use(API_URI + '', PRODUCTSrouter);
 
 
 // app.post(API_URI + '/multiple-upload', googleMulter.array('photos', 10), function (req, res, next) {
 //     res.status(200).json({});
 // });
-
-
 
 // listen to document changes belonging to invoice collection
 app.get(API_URI + '/unsubscribe-invoice', (req, res) => {
@@ -95,6 +95,8 @@ app.get(API_URI + '/subscribe-invoice', (req, res) => {
                 updateCounter: updateCounter
             });
 })
+app.use(express.static(path.join(__dirname, '../dist/tubs')))
+
 const PORT = parseInt(process.argv[2]) ||
     parseInt(process.env.APP_PORT) || 3000
 

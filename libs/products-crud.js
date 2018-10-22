@@ -11,7 +11,7 @@ module.exports = function () {
     //create a router / mini express app
     const router = express.Router();
 
-    // GET /api/products/v1/products --gets all products list
+    // GET /api/products --gets all products list
     router.get('/products', (req, res) => {
         productsCollection
             .limit(10)
@@ -28,18 +28,26 @@ module.exports = function () {
                 console.log('Error getting documents', err);
             });
     });
-    // GET /api/v1/products/:name --search products using product name(e.g. tubs bidet seat D)
-    router.get('/products/:name', (req, res) => {
-        let product_name = [`${req.params.product_name}`];
-        productsCollection.get()
-            .then(result => {
-                if (product_name.length) 
-                    return res.status(200).json(product_name.data)
-                    console.log(product_name.data)
-                res.status(404).json({ messgae: 'Not Found' });
-            }).catch(err => res.status(400).json({ error: err }))
+    // GET /api/products/name - (products?name=tubs+bidet+seat+D) -search products using product name(e.g. tubs bidet seat D)
+    router.get('/products/name/', (req, res) => {
+        let productName = req.query.product_name;
+       console.log('>>ffffffff>>>>>>',productName);
+        productsCollection
+            .where('product_name', '==', productName)
+            .get()
+            .then(snapshot => {
+                let productsArr = [];
+                snapshot.forEach(doc => {
+                    console.log(doc.id, '=>', doc.data());
+                    productsArr.push(doc.data());
+                })
+                res.status(200).json(productsArr);
+            }).catch(err => {
+                res.status(400).json({ error: err });
+                console.log('ERROR GETTING DOCS', err );
+            })
     });
-    // POST /api/v1/products test on ARC,creates new product record {"product_name":"", "cost_price":"", "quantity":"", "unit_price":""}
+    // POST /api/products test on ARC,creates new product record {"product_name":"", "cost_price":"", "quantity":"", "unit_price":""}
     router.post('/products', (req, res) => {
         let products = req.body;
         console.log(products);

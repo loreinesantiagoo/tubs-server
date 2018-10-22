@@ -34,7 +34,9 @@ module.exports = function () {
     }
     
     // config routes
-    //file upload - POST /api/upload
+    // router.get('/download', )
+    
+    //file upload - POST /api/file/upload
     router.post('/upload', debugReq, gMulter.single('photos'), (req, res) => {
         console.log("upload>>>");
         if (req.file != null) {

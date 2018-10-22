@@ -13,13 +13,7 @@ module.exports = function () {
 
     // GET  /api/customers --gets all customers
     router.get('/customers', (req, res) => {
-        let customerName = req.query.cust_name;
-        let custOrders = req.query.cust_orders;
-        console.log(customerName, custOrders);
-
-        customersCollection
-            .limit(20)
-            .get()
+        customersCollection.get()
             .then(snapshot => {
                 let customersArr = [];
                 snapshot.forEach(doc => {
@@ -29,9 +23,30 @@ module.exports = function () {
                 res.status(200).json(customersArr);
             })
             .catch(err => {
-                console.log('Error getting documents', err);
+                console.log('>>>>>>>Error getting docs', err);
             });
     });
+    // GET /api/customers/name (/?cust_name=lina)--gets customer record by name
+    router.get('/customers/name', (req, res)=>{
+        let customerName = req.query.cust_name;
+      
+        customersCollection
+            .where('cust_name', '==', customerName)
+            .limit(20)
+        .get()
+        .then(snapshot => {
+            let customersArr = [];
+            snapshot.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                customersArr.push(doc.data());
+            });
+            res.status(200).json(customersArr);
+        })
+        .catch(err => {
+            console.log('Error getting documents', err);
+        });
+    });
+
     // POST /api/customers test on ARC, {"cust_name":"", "cust_orders":{0:"", 1:""}}
     router.post('/customers', (req, res) => {
         let customer = req.body;
