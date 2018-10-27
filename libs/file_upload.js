@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const bp = require('body-parser');
 const multer = require('multer');
-const uuidv5 = require('uuid/v5');
+const uuidv4 = require('uuid/v4');
 const admin = require('firebase-admin');
 const googleStorage = require('@google-cloud/storage');
 
@@ -21,7 +21,7 @@ const gMulter = multer({
 
 admin.firestore.FieldValue.serverTimestamp();
 var db = admin.firestore();
-var bidet_seat_galleryCollection = db.collection('bidet_seat_gallery');
+var galleryCollection = db.collection('gallery');
 
 module.exports = function () {
     //create a router / mini express app
@@ -44,12 +44,12 @@ module.exports = function () {
             uploadToFirebase(req.file).then((result) => {
                 console.log(result);
                 console.log(result.data);
-                var bidet_seat_galleryData = {
+                var galleryData = {
                     filename: result
                 }
-                bidet_seat_galleryCollection
-                    .add(bidet_seat_galleryData)
-                    .then(result => res.status(200).json(bidet_seat_galleryData))
+                galleryCollection
+                    .add(galleryData)
+                    .then(result => res.status(200).json(bgalleryData))
                     .catch(error => res.status(500).json(error));
             }).catch((error) => {
                 console.log(error);
@@ -64,7 +64,7 @@ module.exports = function () {
             if(!fileObject){
                 reject('Invalid file upload');
             }
-            let idValue =  uuidv5('upload.loreinesantiagoo.asia', uuidv5.DNS);
+            let idValue =  uuidv4();
             console.log(idValue);
             
             let newFilename = `${idValue}_${fileObject.originalname}`
@@ -75,7 +75,7 @@ module.exports = function () {
             
             const blobStream = firebaseFileUpload.createWriteStream({
                 metadata: {
-                    contentType: fileObject.mimeType,
+                    contentType: fileObject.mimetype,
                     cacheControl: 'public, max-age=31536000'
                 }
             });

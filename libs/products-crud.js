@@ -19,8 +19,13 @@ module.exports = function () {
             .then(snapshot => {
                 let productsArr = [];
                 snapshot.forEach(doc => {
-                    console.log(doc.id, '=>', doc.data());
-                    productsArr.push(doc.data());
+                    console.log(doc.id, '=>', doc.id);
+                    let prod = {
+                        id: doc.id,
+                        product_data: doc.data()
+                    }
+                    console.log()
+                    productsArr.push(prod);
                 });
                 res.status(200).json(productsArr);
             })
@@ -28,12 +33,12 @@ module.exports = function () {
                 console.log('Error getting documents', err);
             });
     });
-    // GET /api/products/name - (products?name=tubs+bidet+seat+D) -search products using product name(e.g. tubs bidet seat D)
-    router.get('/products/name/', (req, res) => {
-        let productName = req.query.product_name;
-       console.log('>>ffffffff>>>>>>',productName);
+    // GET /api/products/:id - (products?id=uYx8ZxYHEE92qEZtk3rc) -search products using product name(e.g. tubs bidet seat D)
+    router.get('/products/:id', (req, res) => {
+        let productId = req.params.id;
+       console.log('>>ffffffff>>>>>>',productId);
         productsCollection
-            .where('product_name', '==', productName)
+            .where('product_name', '==', productId)
             .get()
             .then(snapshot => {
                 let productsArr = [];
@@ -59,7 +64,7 @@ module.exports = function () {
     // POST /api/products/:id test on ARC -- edits existing product with specified id
     router.post('/products/:id', (req, res) => {
         let product = req.body;
-        let idValue = req.params.id;
+        let idValue = req.params.doc.data().id;
         console.log(product);
         productsCollection.doc(idValue)
             .set(product)
@@ -68,7 +73,7 @@ module.exports = function () {
     });
     //PUT /api/products/:id test on ARC--updates existing product record 
     router.put('/products/:id', (req, res) => {
-        let idValue = req.params.id;
+        let idValue = req.params.doc.data().id;
         let product = req.body;
         productsCollection.doc(idValue).update(
             product
@@ -77,7 +82,7 @@ module.exports = function () {
     });
     // DELETE /api/products/:id test on ARC ---deletes a product record
     router.delete('/products/:id', (req, res) => {
-        let idValue = req.params.id;
+        let idValue = req.params.doc.data().id;
         productsCollection.doc(idValue).delete().then((result) => {
             res.status(200).json(result);
         }).catch((error) => {
