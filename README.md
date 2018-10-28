@@ -7,7 +7,8 @@ a. GET /api/products --gets all products list
 
 b. POST /api/products ,creates new product record {"product_name":"", "cost_price":"", "quantity":"", "unit_price":""}
 
-c. GET /api/products/name - (products?name=tubs+bidet+seat+D) -search products using product name(e.g. tubs bidet seat D)
+c. GET /api/products/:id - (products?id=uYx8ZxYHEE92qEZtk3rc) -search products using product id
+
 
 d.PUT /api/products/:id --updates existing product record 
 

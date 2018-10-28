@@ -31,30 +31,65 @@ module.exports = function () {
             })
             .catch(err => {
                 console.log('Error getting documents', err);
+                res.status(500).json(err);
             });
     });
     // GET /api/products/:id - (products?id=uYx8ZxYHEE92qEZtk3rc) -search products using product name(e.g. tubs bidet seat D)
     router.get('/products/:id', (req, res) => {
-        let productId = req.params.id;
-       console.log('>>ffffffff>>>>>>',productId);
-        productsCollection
-            .where('product_name', '==', productId)
+        let idValue = req.params.id;
+        console.log('>>ffffffff>>>>>>', idValue);
+
+        productsCollection.doc(idValue)
             .get()
-            .then(snapshot => {
-                let productsArr = [];
-                snapshot.forEach(doc => {
-                    console.log(doc.id, '=>', doc.data());
-                    productsArr.push(doc.data());
-                })
-                res.status(200).json(productsArr);
-            }).catch(err => {
-                res.status(400).json({ error: err });
-                console.log('ERROR GETTING DOCS', err );
+            .then((result) => {
+                console.log(result.data());
+                var productsData = {
+                    id: idValue,
+                    productName: result.data().productName,
+                    quantity: result.data().quantity,
+                    unit_price: result.data().unit_price,
+                    cost_price: result.data().cost_price,
+                    product_image: result.data().product_image
+                }
+                res.status(200).json(productsData)
+            })
+            .catch(err => {
+                console.log('Error getting documents', err);
+                res.status(500).json(err);
+            })
+    });
+    // GET /api/products/name
+    router.get('/products/name', (req, res) => {
+        let productName = req.query.productName;
+        console.log(productName);
+
+        if (typeof (productName === 'undefined')) {
+            if (productName === '') {
+                console.log('productName undefined');
+                res.status(500).json({ error: 'productName undefined>>>' });
+            }
+        }
+
+        productsCollection
+            .where('productName', '==', productName)
+            .get()
+            .then((result) => {
+                let productsData = []
+
+                productsData = result.docs.map(value => {
+                    return value.data();
+                });
+
+                res.status(200).json(productsData)
+            })
+            .catch(err => {
+                console.log('Error getting product by name', err);
+                res.status(500).json(err);
             })
     });
     // POST /api/products test on ARC,creates new product record {"product_name":"", "cost_price":"", "quantity":"", "unit_price":""}
-    router.post('/products', (req, res) => {
-        let products = req.body;
+    router.post('/products', bp.urlencoded({ extended: true }), bp.json({ limit: '50MB' }),(req, res) => {
+        let products = {... req.body};
         console.log(products);
         productsCollection.doc()
             .create(products)
