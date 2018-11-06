@@ -1,11 +1,18 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bp = require('body-parser');
 const multer = require('multer');
 const uuidv5 = require('uuid/v5');
 const admin = require('firebase-admin');
+const crypto = require('crypto'),
+const passport = require('passport'),
+const LocalStrategy = require('passport-local').Strategy,
+const auth = require('./auth'),
+const mailgun = require('mailgun.js');
+
 const cors = require('cors');
-const googleStorage = require('@google-cloud/storage');
+const { Storage } = require('@google-cloud/storage');
 // const firebase = require('firebase-functions');
 
 const app = express();
@@ -31,6 +38,8 @@ const API_URI = "/api";
 var addedCounter = 0;
 var updateCounter = 0;
 
+// crypto functions
+const cryptoFunction = require('./libs/crypto');
 
 //subscribe-invoice
 var unSubscribe = subscribeInvoice();

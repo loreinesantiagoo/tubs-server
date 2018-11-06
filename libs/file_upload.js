@@ -4,10 +4,10 @@ const bp = require('body-parser');
 const multer = require('multer');
 const uuidv4 = require('uuid/v4');
 const admin = require('firebase-admin');
-const googleStorage = require('@google-cloud/storage');
+const { Storage } = require('@google-cloud/storage');
 
-const gStorage = googleStorage({
-    projectId: 'tubs-c616c',
+const gStorage = new Storage({
+    projectId: process.env.FIREBASE_PROJECT_ID
   });
 console.log(gStorage);
 const bucket = gStorage.bucket('tubs-c616c.appspot.com');
@@ -34,8 +34,7 @@ module.exports = function () {
     }
     
     // config routes
-    // router.get('/download', )
-    
+     
     //file upload - POST /api/file/upload
     router.post('/upload', debugReq, gMulter.single('photos'), (req, res) => {
         console.log("upload>>>");
