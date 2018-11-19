@@ -1,4 +1,6 @@
 node_modules
 .env
+.temp
+.log
 forbeats.json
 package-lock.json

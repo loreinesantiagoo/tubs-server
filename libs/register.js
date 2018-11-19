@@ -16,7 +16,6 @@ module.exports = function () {
             console.log(JSON.stringify(registrationObj));
             let convertSecObj = convertPasswordToHash(registrationObj.password);
             registrationObj.password = convertSecObj.hash;
-            registrationObj.salt = convertSecObj.salt;
 
             Users
             .create(user)

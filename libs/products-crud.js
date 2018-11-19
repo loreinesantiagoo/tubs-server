@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const bp = require('body-parser');
 const admin = require('firebase-admin');
+const isAuthenticated = require('./db_init');
+
 
 admin.firestore.FieldValue.serverTimestamp();
 var db = admin.firestore();
@@ -26,6 +28,7 @@ module.exports = function () {
                     }
                     console.log()
                     productsArr.push(prod);
+                    // console.log('prod', prod);
                 });
                 res.status(200).json(productsArr);
             })
@@ -34,7 +37,7 @@ module.exports = function () {
                 res.status(500).json(err);
             });
     });
-    // GET /api/products/:id - (products?id=uYx8ZxYHEE92qEZtk3rc) -search products using product name(e.g. tubs bidet seat D)
+    // GET /api/products/:id - (products/uYx8ZxYHEE92qEZtk3rc) -search products using product name(e.g. tubs bidet seat D)
     router.get('/products/:id', (req, res) => {
         let idValue = req.params.id;
         console.log('>>ffffffff>>>>>>', idValue);
@@ -44,7 +47,7 @@ module.exports = function () {
             .then((result) => {
                 console.log(result.data());
                 var productsData = {
-                    id: idValue,
+                    id: result.data().idValue,
                     productName: result.data().productName,
                     quantity: result.data().quantity,
                     unit_price: result.data().unit_price,
@@ -54,7 +57,7 @@ module.exports = function () {
                 res.status(200).json(productsData)
             })
             .catch(err => {
-                console.log('Error getting documents', err);
+                console.log('Error getting products/:id server', err);
                 res.status(500).json(err);
             })
     });
@@ -88,7 +91,7 @@ module.exports = function () {
             })
     });
     // POST /api/products test on ARC,creates new product record {"product_name":"", "cost_price":"", "quantity":"", "unit_price":""}
-    router.post('/products', bp.urlencoded({ extended: true }), bp.json({ limit: '50MB' }),(req, res) => {
+    router.post('/products', isAuthenticated, bp.urlencoded({ extended: true }), bp.json({ limit: '50MB' }),(req, res) => {
         let products = {... req.body};
         console.log(products);
         productsCollection.doc()
@@ -97,7 +100,7 @@ module.exports = function () {
             .catch(error => res.status(500).json(error));
     });
     // POST /api/products/:id test on ARC -- edits existing product with specified id
-    router.post('/products/:id', (req, res) => {
+    router.post('/products/:id', isAuthenticated, (req, res) => {
         let product = req.body;
         let idValue = req.params.doc.data().id;
         console.log(product);
@@ -107,7 +110,7 @@ module.exports = function () {
             .catch(error => res.status(500).json(error));
     });
     //PUT /api/products/:id test on ARC--updates existing product record 
-    router.put('/products/:id', (req, res) => {
+    router.put('/products/:id', isAuthenticated, (req, res) => {
         let idValue = req.params.doc.data().id;
         let product = req.body;
         productsCollection.doc(idValue).update(
@@ -116,7 +119,7 @@ module.exports = function () {
         res.status(200).json(product);
     });
     // DELETE /api/products/:id test on ARC ---deletes a product record
-    router.delete('/products/:id', (req, res) => {
+    router.delete('/products/:id', isAuthenticated, (req, res) => {
         let idValue = req.params.doc.data().id;
         productsCollection.doc(idValue).delete().then((result) => {
             res.status(200).json(result);
